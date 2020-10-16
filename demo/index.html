@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta name="author" content="" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      playing-card {
+        background: lightblue;
+      }
+
+      playing-card-hand {
+        margin-bottom: 2rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>Hello, world!</p>
+
+    <playing-card-hand>
+      <playing-card rank="5" suit="H" flippable></playing-card>
+      <playing-card rank="6" suit="C" flippable></playing-card>
+      <playing-card rank="8" suit="D" flippable></playing-card>
+      <playing-card rank="7" suit="H" flippable></playing-card>
+      <playing-card rank="9" suit="D" flippable></playing-card>
+    </playing-card-hand>
+
+    <playing-card-hand>
+      <playing-card rank="A" suit="H" flippable></playing-card>
+      <playing-card rank="K" suit="D" flippable></playing-card>
+    </playing-card-hand>
+
+    <playing-card-hand overlapping>
+      <playing-card rank="A" suit="H" flippable></playing-card>
+      <playing-card rank="K" suit="D" flippable></playing-card>
+    </playing-card-hand>
+
+    <script src="../src/index.js"></script>
+    <script type="module">
+      import "playing-card";
+    </script>
+  </body>
+</html>

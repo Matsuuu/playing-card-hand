@@ -1,0 +1,21 @@
+{
+  "name": "playing-card-hand",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "web-dev-server --node-resolve --app-index demo/index.html --open --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 4,
+    "semi": true,
+    "singleQuote": true
+  },
+  "devDependencies": {
+    "@web/dev-server": "0.0.14",
+    "playing-card": "^1.1.0"
+  }
+}
