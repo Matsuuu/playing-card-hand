@@ -5,7 +5,7 @@ class PlayingCardHand extends HTMLElement {
             controlAllTooltip: 'Control all',
             controlMode: 'all',
             peekable: false,
-            flippable: true,
+            flippable: false,
         };
     }
 
@@ -15,7 +15,6 @@ class PlayingCardHand extends HTMLElement {
             this[attrKey] = attributes[attrKey];
         }
         this.setAttribute('controlMode', this.controlMode); // Always force this
-        this.setAttribute('flippable', this.peekable);
     }
 
     constructor() {
@@ -30,29 +29,71 @@ class PlayingCardHand extends HTMLElement {
 
     connectedCallback() {
         this.render();
+        if (!this.peekable && !this.flippable) {
+            console.error('Card hand needs to be specified either flippable or peekable');
+        }
     }
 
     _initEventListeners() {
-        this.addEventListener('click', this._handleClick.bind(this));
+        this.addEventListener('mousedown', this._handleClick.bind(this));
     }
 
     _getCards() {
         this.cards = this.querySelectorAll('playing-card');
+        this.cards.forEach((card) => {
+            card.removeAttribute('peekable');
+            card.removeAttribute('flippable');
+            if (this.peekable) {
+                card.setAttribute('hidden', '');
+            }
+        });
     }
 
     _handleClick(e) {
-        if (this.controlMode !== 'all') return;
-        console.log(this.controlMode);
+        if (!this._targetIsPlayingCard(e.target)) return;
+
+        if (this.controlMode === 'all') {
+            this._handleAllModeClick(e);
+        } else {
+            this._handleSingleModeClick(e);
+        }
+    }
+
+    _handleSingleModeClick(e) {
+        if (this.flippable) {
+            e.target.flip();
+        }
+        if (this.peekable) {
+            this.target.peek(e);
+        }
+    }
+
+    _handleAllModeClick(e) {
         const target = e.target;
         if (this.flippable) {
-            if (target.nodeName === 'PLAYING-CARD') {
+            if (this._targetIsPlayingCard(target)) {
+                const hide = !target.hasAttribute('hidden');
                 this.cards.forEach((card) => {
-                    //TODO: Now it handles card different if some are in other state. Check clicked card state
-                    //and change accorrdingly
-                    if (card !== target) card.flip();
+                    if (hide) {
+                        card.setAttribute('hidden', '');
+                    } else {
+                        card.removeAttribute('hidden');
+                    }
                 });
             }
         }
+        if (this.peekable) {
+            //TODO: Handle multi card peek somehow. Maybe modify original card so that peek is movement in document, not just `this`
+            if (this._targetIsPlayingCard(target)) {
+                this.cards.forEach((card) => {
+                    card.peek(e);
+                });
+            }
+        }
+    }
+
+    _targetIsPlayingCard(target) {
+        return target.nodeName === 'PLAYING-CARD';
     }
 
     changeControlMode(controlMode) {
@@ -63,13 +104,25 @@ class PlayingCardHand extends HTMLElement {
         if (oldValue === newValue) return;
         console.log('Attribute changed ', { name, oldValue, newValue });
 
-        // TODO: Clean this mess with something like "this.assignProperty();"
-        this[this._getPropertyName(name)] = newValue === '' ? true : newValue;
+        this._assignPropertyFromAttribute(name, newValue);
+        this._handleAttributeChange(name, newValue);
         this.render();
+    }
+
+    _assignPropertyFromAttribute(attributeName, value) {
+        const propertyName = this._getPropertyName(attributeName);
+        const isBooleanAttribute = value === '';
+        this[propertyName] = isBooleanAttribute ? true : value;
     }
 
     _getPropertyName(attrName) {
         return Object.keys(PlayingCardHand.attributes).find((key) => key.toLowerCase() == attrName);
+    }
+
+    _handleAttributeChange(attributeName, value) {
+        if (attributeName === 'peekable') {
+            if (this.cards && value != null) this.cards.forEach((card) => card.setAttribute('hidden', ''));
+        }
     }
 
     render() {
